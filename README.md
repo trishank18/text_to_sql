@@ -28,9 +28,22 @@ SQLite is included with Python, so it needs no separate installation. If PowerSh
 
 ```powershell
 python create_db.py
-python text_to_sql.py
+python interactive_console.py
 ```
 
-The console prints the schema at startup. Enter a question such as `Show the top customers by spending`; results appear in a table. Type `schema` to show the schema again, or `quit`/`exit` to close the console. The app asks the model for one SQLite `SELECT` query and executes it using a read-only connection. Generated SQL is checked before execution, and SQLite blocks write operations. Success and error messages use terminal colors.
+The separate interactive console prints the schema at startup. Enter a question such as `Show the top customers by spending`; results appear in a table. Type `schema` to show the schema again, or `quit`/`exit` to close the console. The console asks the model for one SQLite `SELECT` query and executes it using a read-only connection. Generated SQL is checked before execution, and SQLite blocks write operations. Success and error messages use terminal colors.
+
+The `text_to_sql.py` file contains the reusable SQL-generation, database, and table-formatting functions. Run `python interactive_console.py` to use the interactive mode.
 
 The app uses Google's official `google-genai` Python SDK and Gemini Interactions API.
+
+## Run the Flask web app
+
+Install the added Flask dependency if you already created the virtual environment:
+
+```powershell
+pip install -r requirements.txt
+python app.py
+```
+
+Open <http://127.0.0.1:5000> in your browser. The web UI includes the database schema, example questions, generated SQL, formatted results, and clear error messages. It uses the same read-only database and Gemini configuration as the console.

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QueryDesk | Text to SQL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">Q</div>
+                <div>
+                    <strong>QueryDesk</strong>
+                    <span>Text to SQL</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="eyebrow">Connected database</div>
+                <div class="database-status">
+                    <span class="status-dot"></span>
+                    <span>sales.db</span>
+                    <span class="status-label">SQLite</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section schema-section">
+                <div class="section-heading">
+                    <span class="eyebrow">Database schema</span>
+                    <span class="table-count">2 tables</span>
+                </div>
+                <div class="schema-card">
+                    <div class="table-name"><span class="table-icon">▦</span> customers</div>
+                    <ul>
+                        <li><span>id</span><small>INTEGER · PK</small></li>
+                        <li><span>name</span><small>TEXT</small></li>
+                        <li><span>email</span><small>TEXT</small></li>
+                        <li><span>city</span><small>TEXT</small></li>
+                    </ul>
+                </div>
+                <div class="schema-card">
+                    <div class="table-name"><span class="table-icon">▦</span> orders</div>
+                    <ul>
+                        <li><span>id</span><small>INTEGER · PK</small></li>
+                        <li><span>customer_id</span><small>INTEGER · FK</small></li>
+                        <li><span>product</span><small>TEXT</small></li>
+                        <li><span>amount</span><small>REAL</small></li>
+                        <li><span>order_date</span><small>TEXT</small></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <span class="sparkle">✦</span>
+                <span>Powered by Gemini</span>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <div class="eyebrow">Analytics workspace</div>
+                    <h1>Ask your data anything.</h1>
+                </div>
+                <div class="read-only-badge"><span>●</span> Read-only mode</div>
+            </header>
+
+            <section class="hero-card">
+                <div class="hero-icon">✦</div>
+                <div>
+                    <h2>Turn questions into insights</h2>
+                    <p>Ask a question in plain English and QueryDesk will generate a safe SQL query for your database.</p>
+                </div>
+            </section>
+
+            <section class="query-panel">
+                <div class="panel-label">Your question</div>
+                <form method="post" id="query-form">
+                    <div class="question-box">
+                        <textarea name="question" id="question" rows="3"
+                            placeholder="e.g. Show the top customers by total spending">{{ question }}</textarea>
+                        <button type="submit" class="ask-button" id="ask-button">
+                            <span class="button-icon">↗</span>
+                            <span>Ask QueryDesk</span>
+                        </button>
+                    </div>
+                </form>
+                <div class="suggestions">
+                    <span>Try asking:</span>
+                    <button type="button" onclick="fillQuestion('Which products generated the most revenue?')">Top products</button>
+                    <button type="button" onclick="fillQuestion('Show all orders from customers in Mumbai')">Mumbai orders</button>
+                    <button type="button" onclick="fillQuestion('How many orders does each customer have?')">Orders by customer</button>
+                </div>
+            </section>
+
+            {% if error %}
+            <section class="message-card error-card">
+                <div class="message-icon">!</div>
+                <div>
+                    <strong>Could not complete the query</strong>
+                    <p>{{ error }}</p>
+                </div>
+            </section>
+            {% endif %}
+
+            {% if sql %}
+            <section class="result-section">
+                <div class="result-heading">
+                    <div>
+                        <div class="eyebrow">Generated query</div>
+                        <h2>Your results</h2>
+                    </div>
+                    <span class="success-badge">✓ Query completed</span>
+                </div>
+                <div class="sql-card"><code>{{ sql }}</code></div>
+
+                {% if rows %}
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>{% for column in columns %}<th>{{ column }}</th>{% endfor %}</tr>
+                        </thead>
+                        <tbody>
+                            {% for row in rows %}
+                            <tr>{% for value in row %}<td>{{ value if value is not none else "—" }}</td>{% endfor %}</tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row-count">{{ rows|length }} row{% if rows|length != 1 %}s{% endif %} returned</div>
+                {% else %}
+                <div class="empty-state">The query completed successfully, but no rows matched.</div>
+                {% endif %}
+            </section>
+            {% endif %}
+        </main>
+    </div>
+    <script>
+        function fillQuestion(question) {
+            document.getElementById("question").value = question;
+            document.getElementById("question").focus();
+        }
+
+        document.getElementById("query-form").addEventListener("submit", function () {
+            const button = document.getElementById("ask-button");
+            button.disabled = true;
+            button.querySelector("span:last-child").textContent = "Thinking...";
+        });
+    </script>
+</body>
+</html>
